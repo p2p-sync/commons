@@ -79,4 +79,30 @@ public class Hash {
 
         return hf.hashString(strToHash, StandardCharsets.UTF_8).toString();
     }
+
+    /**
+     * Hashes the content of the given byte array with the given hash function
+     *
+     * @param hashingAlgorithm The hashing algorithm to use
+     * @param data             The data to hash
+     *
+     * @return The hash string
+     */
+    public static String hash(HashingAlgorithm hashingAlgorithm, byte[] data) {
+        HashFunction hf = null;
+
+        switch (hashingAlgorithm) {
+            case SHA_1:
+                hf = Hashing.sha1();
+                break;
+            case SHA_256:
+                hf = Hashing.sha256();
+                break;
+            case SHA_512:
+                hf = Hashing.sha512();
+                break;
+        }
+
+        return hf.hashBytes(data).toString();
+    }
 }

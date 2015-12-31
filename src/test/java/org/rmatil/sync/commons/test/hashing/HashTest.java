@@ -159,4 +159,34 @@ public class HashTest {
 
     }
 
+    @Test
+    public void testByteToSha1() {
+        String str = "Hello World! ";
+        String expected = "f9e7d601b1f22e2ead34c1afd7dfee195f31a711";
+
+        String hash = Hash.hash(HashingAlgorithm.SHA_1, str.getBytes());
+
+        assertEquals("Sha1 strings are not equal", expected, hash);
+    }
+
+
+    @Test
+    public void testByteToSha256() {
+        String str = "Hello World! ";
+        String expected = "2dddc2bb86f352ea34213f067371c3eea9edab97001bee9aa5047df583b739ba";
+
+        String hash = Hash.hash(HashingAlgorithm.SHA_256, str.getBytes());
+
+        assertEquals("Sha256 strings are not equal", expected, hash);
+    }
+
+    @Test
+    public void testByteToSha512() {
+        String str = "Hello World! ";
+        String expected = "e88c176ea596c01dc2ee01390e24b707792acbad34457ccb17f400a180c307b1b88ef60ee541d1a6f0f8ad5bb5702a03ebc59b4c4fbb5cb1f7c96aa9c39a31cc";
+
+        String hash = Hash.hash(HashingAlgorithm.SHA_512, str.getBytes());
+
+        assertEquals("Sha512 strings are not equal", expected, hash);
+    }
 }
