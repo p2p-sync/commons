@@ -15,7 +15,7 @@ public class Naming {
     public static String getPathWithoutFileName(String fileName, String pathToFileWithFilename) {
         // filename.txt
         // myPath/to/filename.txt
-        int idx = pathToFileWithFilename.indexOf(fileName);
+        int idx = pathToFileWithFilename.lastIndexOf(fileName);
         // remove slash between path and filename
         return pathToFileWithFilename.substring(0, idx - 1);
     }
