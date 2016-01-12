@@ -9,6 +9,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * Hashing utilities for files
@@ -34,8 +40,35 @@ public class Hash {
         }
 
         if (file.isDirectory()) {
-            throw new FileNotFoundException(file.getAbsolutePath() + " (Is a directory)");
+            // we create the hash of the file names in it
+            List<String> dirContentNames = new ArrayList<>();
+
+            try (DirectoryStream<Path> stream = java.nio.file.Files.newDirectoryStream(file.toPath())) {
+                for (Path childFile : stream) {
+                    dirContentNames.add(childFile.getFileName().toString());
+                }
+            }
+
+            // sort directory contents by name to result in the same hash
+            Collections.sort(dirContentNames, (o1, o2) -> {
+                        if (o1.length() < o2.length()) {
+                            return - 1;
+                        }
+
+                        if (o1.length() > o2.length()) {
+                            return 1;
+                        }
+
+                        // if they have the same length, order lexicographically
+                        return o1.compareTo(o2);
+                    }
+            );
+
+            String implodedContents = String.join("", dirContentNames);
+
+            return Hash.hash(hashingAlgorithm, implodedContents);
         }
+
 
         HashCode hc = null;
 

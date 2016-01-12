@@ -10,7 +10,9 @@ import org.rmatil.sync.commons.test.util.FileUtil;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.junit.Assert.assertEquals;
 
@@ -43,23 +45,15 @@ public class HashTest {
     }
 
     @Test
-    public void testSha1() {
-        String hash = null;
-        try {
-            hash = Hash.hash(HashingAlgorithm.SHA_1, testFile.toFile());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void testSha1()
+            throws IOException {
+        String hash = Hash.hash(HashingAlgorithm.SHA_1, testFile.toFile());
 
         assertEquals("SHA1 hash is not equal", "da39a3ee5e6b4b0d3255bfef95601890afd80709", hash);
 
         testFile = FileUtil.modifyTestFile(Config.DEFAULT.getRootTestDir());
 
-        try {
-            hash = Hash.hash(HashingAlgorithm.SHA_1, testFile.toFile());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        hash = Hash.hash(HashingAlgorithm.SHA_1, testFile.toFile());
 
         assertEquals("SHA1 hash is not equal after modification", "f9e7d601b1f22e2ead34c1afd7dfee195f31a711", hash);
 
@@ -67,45 +61,33 @@ public class HashTest {
     }
 
     @Test
-    public void testSha256() {
-        String hash = null;
-        try {
-            hash = Hash.hash(HashingAlgorithm.SHA_256, testFile.toFile());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void testSha256()
+            throws IOException {
+
+        String hash = Hash.hash(HashingAlgorithm.SHA_256, testFile.toFile());
 
         assertEquals("SHA256 hash is not equal", "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", hash);
 
         testFile = FileUtil.modifyTestFile(Config.DEFAULT.getRootTestDir());
 
-        try {
-            hash = Hash.hash(HashingAlgorithm.SHA_256, testFile.toFile());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        hash = Hash.hash(HashingAlgorithm.SHA_256, testFile.toFile());
 
         assertEquals("SHA256 hash is not equal after modification", "2dddc2bb86f352ea34213f067371c3eea9edab97001bee9aa5047df583b739ba", hash);
     }
 
     @Test
-    public void testSha512() {
-        String hash = null;
-        try {
-            hash = Hash.hash(HashingAlgorithm.SHA_512, testFile.toFile());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void testSha512()
+            throws IOException {
+
+        String hash = Hash.hash(HashingAlgorithm.SHA_512, testFile.toFile());
+
 
         assertEquals("SHA512 hash is not equal", "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e", hash);
 
         testFile = FileUtil.modifyTestFile(Config.DEFAULT.getRootTestDir());
 
-        try {
-            hash = Hash.hash(HashingAlgorithm.SHA_512, testFile.toFile());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
+        hash = Hash.hash(HashingAlgorithm.SHA_512, testFile.toFile());
 
         assertEquals("SHA512 hash is not equal after modification", "e88c176ea596c01dc2ee01390e24b707792acbad34457ccb17f400a180c307b1b88ef60ee541d1a6f0f8ad5bb5702a03ebc59b4c4fbb5cb1f7c96aa9c39a31cc", hash);
     }
@@ -123,9 +105,27 @@ public class HashTest {
     @Test
     public void testFolderSha1()
             throws IOException {
-        thrown.expect(FileNotFoundException.class);
+        // add a second file
+        Path filePath = Files.createFile(Config.DEFAULT.getRootTestDir().resolve(Paths.get("mySecondFile.txt")));
+        Path filePath2 = Files.createFile(Config.DEFAULT.getRootTestDir().resolve(Paths.get("mySecondFila.txt"))); // same length file name -> force lexicographical order
+        // add a directory
+        Path dirPath = Files.createDirectory(Config.DEFAULT.getRootTestDir().resolve(Paths.get("myDir")));
+        Files.createDirectories(dirPath.resolve(Paths.get("innerDir"))); // the inner directory should not affect the hash
 
-        String hash = Hash.hash(HashingAlgorithm.SHA_1, Config.DEFAULT.getRootTestDir().toFile());
+        // the hash of the concatenated file names in the directory ordered by their length
+        // myDirfile1.txtmySecondFila.txtmySecondFile.txt
+        String expectedHashSha1 = "804fb50f65de42f567eab020fa36a04ed88b3dda";
+        String expectedHashSha256 = "8cc35835ec74d98e2abc10cc3d582c9c3a2d95538688671aaac3ad16d5d98024";
+        String expectedHashSha512 = "99dfac70670ee2d5246ffc38d5b10c4eb4d00bfa83dea714865d3b7b42d9da7443f08aab7ab164d6e07f202cf459bb6574b22bc58f1b30ba5643bfecdb985acd";
+
+        String hash1 = Hash.hash(HashingAlgorithm.SHA_1, Config.DEFAULT.getRootTestDir().toFile());
+        assertEquals("Sha1 hash is not equal", expectedHashSha1, hash1);
+
+        String hash2 = Hash.hash(HashingAlgorithm.SHA_256, Config.DEFAULT.getRootTestDir().toFile());
+        assertEquals("Sha256 is not equal", expectedHashSha256, hash2);
+
+        String hash3 = Hash.hash(HashingAlgorithm.SHA_512, Config.DEFAULT.getRootTestDir().toFile());
+        assertEquals("Sha512 is not equal", expectedHashSha512, hash3);
     }
 
     @Test
