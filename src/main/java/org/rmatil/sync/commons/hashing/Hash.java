@@ -40,33 +40,7 @@ public class Hash {
         }
 
         if (file.isDirectory()) {
-            // we create the hash of the file names in it
-            List<String> dirContentNames = new ArrayList<>();
-
-            try (DirectoryStream<Path> stream = java.nio.file.Files.newDirectoryStream(file.toPath())) {
-                for (Path childFile : stream) {
-                    dirContentNames.add(childFile.getFileName().toString());
-                }
-            }
-
-            // sort directory contents by name to result in the same hash
-            Collections.sort(dirContentNames, (o1, o2) -> {
-                        if (o1.length() < o2.length()) {
-                            return - 1;
-                        }
-
-                        if (o1.length() > o2.length()) {
-                            return 1;
-                        }
-
-                        // if they have the same length, order lexicographically
-                        return o1.compareTo(o2);
-                    }
-            );
-
-            String implodedContents = String.join("", dirContentNames);
-
-            return Hash.hash(hashingAlgorithm, implodedContents);
+            return Hash.hashDirectory(hashingAlgorithm, file.toPath());
         }
 
 
@@ -85,6 +59,52 @@ public class Hash {
         }
 
         return hc.toString();
+    }
+
+    /**
+     * Creates a hash over the content of the given directory.
+     *
+     * @param hashingAlgorithm The hashing algorithm to use
+     * @param directory The directory to hash
+     *
+     * @return The calculated hash
+     *
+     * @throws IOException If reading the directory failed
+     */
+    protected static String hashDirectory(HashingAlgorithm hashingAlgorithm, Path directory)
+            throws IOException {
+        // use the name of the directory as base hash
+        String hash = Hash.hash(hashingAlgorithm, directory.getFileName().toString());
+
+        List<Path> childFiles = new ArrayList<>();
+        try (DirectoryStream<Path> stream = java.nio.file.Files.newDirectoryStream(directory)) {
+            for (Path childFile : stream) {
+                childFiles.add(childFile);
+            }
+        }
+
+        Collections.sort(childFiles, (o1, o2) -> {
+            if (o1.getFileName().toString().length() < o2.getFileName().toString().length()) {
+                return -1;
+            }
+
+            if (o1.getFileName().toString().length() > o2.getFileName().toString().length()) {
+                return 1;
+            }
+
+            // if they have the same length, compare them lexicographically
+            return o1.compareTo(o2);
+        });
+
+        for (Path childFile : childFiles) {
+            if (childFile.toFile().isDirectory()) {
+                hash = hash.concat(Hash.hashDirectory(hashingAlgorithm, childFile));
+            } else {
+                return Hash.hash(hashingAlgorithm, childFile.toFile());
+            }
+        }
+
+        return Hash.hash(hashingAlgorithm, hash);
     }
 
     /**

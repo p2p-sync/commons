@@ -112,11 +112,10 @@ public class HashTest {
         Path dirPath = Files.createDirectory(Config.DEFAULT.getRootTestDir().resolve(Paths.get("myDir")));
         Files.createDirectories(dirPath.resolve(Paths.get("innerDir"))); // the inner directory should not affect the hash
 
-        // the hash of the concatenated file names in the directory ordered by their length
-        // myDirfile1.txtmySecondFila.txtmySecondFile.txt
-        String expectedHashSha1 = "804fb50f65de42f567eab020fa36a04ed88b3dda";
-        String expectedHashSha256 = "8cc35835ec74d98e2abc10cc3d582c9c3a2d95538688671aaac3ad16d5d98024";
-        String expectedHashSha512 = "99dfac70670ee2d5246ffc38d5b10c4eb4d00bfa83dea714865d3b7b42d9da7443f08aab7ab164d6e07f202cf459bb6574b22bc58f1b30ba5643bfecdb985acd";
+        // hash the directory recursively
+        String expectedHashSha1 = "da39a3ee5e6b4b0d3255bfef95601890afd80709";
+        String expectedHashSha256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
+        String expectedHashSha512 = "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e";
 
         String hash1 = Hash.hash(HashingAlgorithm.SHA_1, Config.DEFAULT.getRootTestDir().toFile());
         assertEquals("Sha1 hash is not equal", expectedHashSha1, hash1);
