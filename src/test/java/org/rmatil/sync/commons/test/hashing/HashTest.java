@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class HashTest {
 
@@ -110,12 +111,12 @@ public class HashTest {
         Path filePath2 = Files.createFile(Config.DEFAULT.getRootTestDir().resolve(Paths.get("mySecondFila.txt"))); // same length file name -> force lexicographical order
         // add a directory
         Path dirPath = Files.createDirectory(Config.DEFAULT.getRootTestDir().resolve(Paths.get("myDir")));
-        Files.createDirectories(dirPath.resolve(Paths.get("innerDir"))); // the inner directory should not affect the hash
+        Path innerDir = Files.createDirectory(dirPath.resolve(Paths.get("innerDir")));
 
         // hash the directory recursively
-        String expectedHashSha1 = "da39a3ee5e6b4b0d3255bfef95601890afd80709";
-        String expectedHashSha256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
-        String expectedHashSha512 = "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e";
+        String expectedHashSha1 = "a7bbbc17f232e6811c6a96ec953d76825a876f53";
+        String expectedHashSha256 = "184a541df11a60c67a49e54125a9818d5ade57c4cba506665407d6009cb86fa0";
+        String expectedHashSha512 = "82b82c8a47e9e17596bcd10d8ad434b207cf4856de1bf350a718fdddcf13a4283f74cf1d73301ed9c2a125a127d655dbb07eaae89723227278f7eb77d429dd67";
 
         String hash1 = Hash.hash(HashingAlgorithm.SHA_1, Config.DEFAULT.getRootTestDir().toFile());
         assertEquals("Sha1 hash is not equal", expectedHashSha1, hash1);
@@ -124,6 +125,31 @@ public class HashTest {
         assertEquals("Sha256 is not equal", expectedHashSha256, hash2);
 
         String hash3 = Hash.hash(HashingAlgorithm.SHA_512, Config.DEFAULT.getRootTestDir().toFile());
+        assertEquals("Sha512 is not equal", expectedHashSha512, hash3);
+
+        // add a file to the most inner directory
+        Files.createFile(innerDir.resolve("blubFile.txt"));
+
+        hash1 = Hash.hash(HashingAlgorithm.SHA_1, Config.DEFAULT.getRootTestDir().toFile());
+        assertNotEquals("Sha1 hash must not be equal", expectedHashSha1, hash1);
+
+        hash2 = Hash.hash(HashingAlgorithm.SHA_256, Config.DEFAULT.getRootTestDir().toFile());
+        assertNotEquals("Sha256 must not be equal", expectedHashSha256, hash2);
+
+        hash3 = Hash.hash(HashingAlgorithm.SHA_512, Config.DEFAULT.getRootTestDir().toFile());
+        assertNotEquals("Sha512 must not be equal", expectedHashSha512, hash3);
+
+        // remove the file again
+        Files.delete(innerDir.resolve("blubFile.txt"));
+
+        // hash should be equal again
+        hash1 = Hash.hash(HashingAlgorithm.SHA_1, Config.DEFAULT.getRootTestDir().toFile());
+        assertEquals("Sha1 hash is not equal", expectedHashSha1, hash1);
+
+        hash2 = Hash.hash(HashingAlgorithm.SHA_256, Config.DEFAULT.getRootTestDir().toFile());
+        assertEquals("Sha256 is not equal", expectedHashSha256, hash2);
+
+        hash3 = Hash.hash(HashingAlgorithm.SHA_512, Config.DEFAULT.getRootTestDir().toFile());
         assertEquals("Sha512 is not equal", expectedHashSha512, hash3);
     }
 

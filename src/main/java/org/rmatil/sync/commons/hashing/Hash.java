@@ -65,25 +65,29 @@ public class Hash {
      * Creates a hash over the content of the given directory.
      *
      * @param hashingAlgorithm The hashing algorithm to use
-     * @param directory The directory to hash
+     * @param path The directory to hash
      *
      * @return The calculated hash
      *
      * @throws IOException If reading the directory failed
      */
-    protected static String hashDirectory(HashingAlgorithm hashingAlgorithm, Path directory)
+    protected static String hashDirectory(HashingAlgorithm hashingAlgorithm, Path path)
             throws IOException {
-        // use the name of the directory as base hash
-        String hash = Hash.hash(hashingAlgorithm, directory.getFileName().toString());
+        String hash = path.getFileName().toString();
 
-        List<Path> childFiles = new ArrayList<>();
-        try (DirectoryStream<Path> stream = java.nio.file.Files.newDirectoryStream(directory)) {
+        if (path.toFile().exists() && path.toFile().isFile()) {
+            return Hash.hash(hashingAlgorithm, hash.concat(Hash.hash(hashingAlgorithm, path.toFile())));
+        }
+
+        List<Path> childPaths = new ArrayList<>();
+        try (DirectoryStream<Path> stream = java.nio.file.Files.newDirectoryStream(path)) {
             for (Path childFile : stream) {
-                childFiles.add(childFile);
+                childPaths.add(childFile);
             }
         }
 
-        Collections.sort(childFiles, (o1, o2) -> {
+        // order child paths by length of their name and then lexicographically
+        Collections.sort(childPaths, (o1, o2) -> {
             if (o1.getFileName().toString().length() < o2.getFileName().toString().length()) {
                 return -1;
             }
@@ -96,12 +100,8 @@ public class Hash {
             return o1.compareTo(o2);
         });
 
-        for (Path childFile : childFiles) {
-            if (childFile.toFile().isDirectory()) {
-                hash = hash.concat(Hash.hashDirectory(hashingAlgorithm, childFile));
-            } else {
-                return Hash.hash(hashingAlgorithm, childFile.toFile());
-            }
+        for (Path childPath : childPaths) {
+            hash = hash.concat(hashDirectory(hashingAlgorithm, childPath));
         }
 
         return Hash.hash(hashingAlgorithm, hash);
