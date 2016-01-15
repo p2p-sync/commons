@@ -27,6 +27,9 @@ public class NamingTest {
 
         String f4 = "/myDir/myPath/myDir/myPath";
         assertEquals("Path is not correct", "/myDir/myPath/myDir", Naming.getPathWithoutFileName("myPath", f4));
+
+        String f5 = "myDir";
+        assertEquals("Path is not correct", "", Naming.getPathWithoutFileName("myDir", f5));
     }
 
     @Test

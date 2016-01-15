@@ -17,7 +17,7 @@ public class Naming {
         // myPath/to/filename.txt
         int idx = pathToFileWithFilename.lastIndexOf(fileName);
         // remove slash between path and filename
-        return pathToFileWithFilename.substring(0, idx - 1);
+        return pathToFileWithFilename.substring(0, Math.max(0, idx - 1));
     }
 
     /**
