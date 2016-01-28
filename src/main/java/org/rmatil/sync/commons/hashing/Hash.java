@@ -13,7 +13,6 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -47,6 +46,9 @@ public class Hash {
         HashCode hc = null;
 
         switch (hashingAlgorithm) {
+            case MD5:
+                hc = Files.hash(file, Hashing.md5());
+                break;
             case SHA_1:
                 hc = Files.hash(file, Hashing.sha1());
                 break;
@@ -65,7 +67,7 @@ public class Hash {
      * Creates a hash over the content of the given directory.
      *
      * @param hashingAlgorithm The hashing algorithm to use
-     * @param path The directory to hash
+     * @param path             The directory to hash
      *
      * @return The calculated hash
      *
@@ -89,7 +91,7 @@ public class Hash {
         // order child paths by length of their name and then lexicographically
         Collections.sort(childPaths, (o1, o2) -> {
             if (o1.getFileName().toString().length() < o2.getFileName().toString().length()) {
-                return -1;
+                return - 1;
             }
 
             if (o1.getFileName().toString().length() > o2.getFileName().toString().length()) {
@@ -119,6 +121,9 @@ public class Hash {
         HashFunction hf = null;
 
         switch (hashingAlgorithm) {
+            case MD5:
+                hf = Hashing.md5();
+                break;
             case SHA_1:
                 hf = Hashing.sha1();
                 break;
@@ -145,6 +150,9 @@ public class Hash {
         HashFunction hf = null;
 
         switch (hashingAlgorithm) {
+            case MD5:
+                hf = Hashing.md5();
+                break;
             case SHA_1:
                 hf = Hashing.sha1();
                 break;

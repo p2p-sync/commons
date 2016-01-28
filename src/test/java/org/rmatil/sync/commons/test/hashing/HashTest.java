@@ -42,7 +42,22 @@ public class HashTest {
     @After
     public void after() {
         testFile = FileUtil.deleteTestFile(Config.DEFAULT.getRootTestDir());
+    }
 
+    @Test
+    public void testMd5()
+            throws IOException {
+        String hash = Hash.hash(HashingAlgorithm.MD5, testFile.toFile());
+
+        assertEquals("MD5 hash is not equal", "d41d8cd98f00b204e9800998ecf8427e", hash);
+
+        testFile = FileUtil.modifyTestFile(Config.DEFAULT.getRootTestDir());
+
+        hash = Hash.hash(HashingAlgorithm.MD5, testFile.toFile());
+
+        assertEquals("MD5 hash is not equal after modification", "63a658f4a666a64dcbd504dba07f29d4", hash);
+
+        testFile = FileUtil.deleteTestFile(Config.DEFAULT.getRootTestDir());
     }
 
     @Test
