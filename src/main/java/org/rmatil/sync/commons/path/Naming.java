@@ -16,6 +16,13 @@ public class Naming {
         // filename.txt
         // myPath/to/filename.txt
         int idx = pathToFileWithFilename.lastIndexOf(fileName);
+
+        // return just the leading slash if the file only has the root element and the filename
+        // e.g. /myFile.txt
+        if (1 == idx && "/".equals(pathToFileWithFilename.substring(0, 1))) {
+            return "/";
+        }
+
         // remove slash between path and filename
         return pathToFileWithFilename.substring(0, Math.max(0, idx - 1));
     }
@@ -28,7 +35,7 @@ public class Naming {
      * @param fileExtension    The file extension of the file
      * @param clientDeviceId   The id of the client which is added to the filename
      *
-     * @return The file name of the conflict file
+     * @return The path to the file having the new conflict file name
      *
      * @throws IllegalArgumentException If the clientDeviceId contains illegal characters (dot)
      */
@@ -40,6 +47,12 @@ public class Naming {
         }
 
         String lastPathName = Paths.get(relativeFilePath).getFileName().toString();
+        String pathWithoutFileName = Naming.getPathWithoutFileName(lastPathName, relativeFilePath);
+
+        // append a slash to the end only if the path is not empty
+        if (! pathWithoutFileName.equals("") && ! pathWithoutFileName.equals("/")) {
+            pathWithoutFileName = pathWithoutFileName.concat("/");
+        }
 
         String newFileName = lastPathName;
         if (isFile && fileExtension.length() > 0) {
@@ -54,7 +67,7 @@ public class Naming {
         // add client name
         newFileName = newFileName + "_" + clientDeviceId;
         // re-add file extension
-        return newFileName + ((fileExtension.length() > 0) ? ("." + fileExtension) : "");
+        return pathWithoutFileName + newFileName + ((fileExtension.length() > 0) ? ("." + fileExtension) : "");
     }
 
 }

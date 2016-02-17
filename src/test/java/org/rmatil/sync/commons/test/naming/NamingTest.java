@@ -30,6 +30,9 @@ public class NamingTest {
 
         String f5 = "myDir";
         assertEquals("Path is not correct", "", Naming.getPathWithoutFileName("myDir", f5));
+
+        String f6 = "/myFile.txt";
+        assertEquals("Path is not correct", "/", Naming.getPathWithoutFileName("myFile.txt", f6));
     }
 
     @Test
@@ -42,21 +45,29 @@ public class NamingTest {
         String fn3 = "myPath/to/myFileWithoutExtension";
         String fn4 = "myPath/to/myDir";
         String fn5 = "myPath/to/myDir.With.Dots";
+        String fn6 = "myFile.txt";
+        String fn7 = "/myFile.txt";
 
         String ret1 = Naming.getConflictFileName(fn1, true, "txt", deviceId);
-        assertEquals("Filename for fn1 is not equal", "myFile_client1.txt", ret1);
+        assertEquals("Filename for fn1 is not equal", "myPath/to/myFile_client1.txt", ret1);
 
         String ret2 = Naming.getConflictFileName(fn2, true, "tar.gz", deviceId);
-        assertEquals("Filename for fn2 is not equal", "myFile_client1.tar.gz", ret2);
+        assertEquals("Filename for fn2 is not equal", "myPath/to/myFile_client1.tar.gz", ret2);
 
         String ret3 = Naming.getConflictFileName(fn3, true, "", deviceId);
-        assertEquals("Filename for fn3 is not equal", "myFileWithoutExtension_client1", ret3);
+        assertEquals("Filename for fn3 is not equal", "myPath/to/myFileWithoutExtension_client1", ret3);
 
         String ret4 = Naming.getConflictFileName(fn4, false, "", deviceId);
-        assertEquals("Filename for fn4 is not equal", "myDir_client1", ret4);
+        assertEquals("Filename for fn4 is not equal", "myPath/to/myDir_client1", ret4);
 
         String ret5 = Naming.getConflictFileName(fn5, false, "", deviceId);
-        assertEquals("Filename for fn4 is not equal", "myDir.With.Dots_client1", ret5);
+        assertEquals("Filename for fn4 is not equal", "myPath/to/myDir.With.Dots_client1", ret5);
+
+        String ret6 = Naming.getConflictFileName(fn6, true, "txt", deviceId);
+        assertEquals("Filename for fn6 is not equal", "myFile_client1.txt", ret6);
+
+        String ret7 = Naming.getConflictFileName(fn7, true, "txt", deviceId);
+        assertEquals("Filename for fn7 is not equal", "/myFile_client1.txt", ret7);
 
         thrown.expect(IllegalArgumentException.class);
         Naming.getConflictFileName(fn1, true, "txt", illegalDeviceId);
