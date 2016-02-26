@@ -1,5 +1,6 @@
 package org.rmatil.sync.commons.path;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class Naming {
@@ -25,6 +26,40 @@ public class Naming {
 
         // remove slash between path and filename
         return pathToFileWithFilename.substring(0, Math.max(0, idx - 1));
+    }
+
+    /**
+     * Returns the parent of the given path.
+     * If the specified path is only one element long (e.g. /myFile or myFile),
+     * then the root (i.e. /) is returned in the first case, null in the second.
+     *
+     * @param path The path of which to get its parent path
+     *
+     * @return The parent path or null, if no parent can be found
+     */
+    public static String getParentPath(String path) {
+        Path child = Paths.get(path);
+
+        if (child.getNameCount() > 1) {
+            Path parent = child.subpath(0, child.getNameCount() - 1);
+
+            // path.subpath() returns always a relative path
+            if (child.isAbsolute()) {
+                // we may not use toAbsolutePath since it resolves
+                // the path to a implementation based default directory (e.g. the current dir)
+                return "/".concat(parent.toString());
+            }
+
+            return parent.toString();
+        }
+
+        // if we have an element like /myFile.txt
+        // return root as parent
+        if (path.startsWith("/")) {
+            return "/";
+        }
+
+        return null;
     }
 
     /**

@@ -36,6 +36,16 @@ public class NamingTest {
     }
 
     @Test
+    public void testGetParentPath() {
+        assertEquals("Parent path is not equal", "my/path/to", Naming.getParentPath("my/path/to/myFile.txt"));
+        assertEquals("Parent path is not equal", "my/path/to", Naming.getParentPath("my/path/to/myFile"));
+        assertEquals("Parent path is not equal", "/my/path/to", Naming.getParentPath("/my/path/to/myFile.txt"));
+        assertEquals("Parent path is not equal", "/my/path/to", Naming.getParentPath("/my/path/to/myFile"));
+        assertEquals("Parent path is not equal", "/", Naming.getParentPath("/myFile.txt"));
+        assertNull("Parent path should be null", Naming.getParentPath("myFile.txt"));
+    }
+
+    @Test
     public void testGetConflictFileName() {
         String deviceId = "client1";
         String illegalDeviceId = "client.1";
